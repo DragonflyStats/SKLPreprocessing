@@ -1,4 +1,5 @@
 hideR
+====================
 
 ### Data Transformations
 
@@ -19,17 +20,31 @@ myNewData = getFactors(myData, threshold = 10, ignore = KeepList)
 
 </code></pre>
 
+Subsequent commands will perform this step automatically.
+
 ### 1. Case Report
 
 Parameters 
-- **T** Lowest Cell Size Threshold
+- `T` Lowest Cell Size Threshold
    - default value of 30.
-- **L** Report Length
+- `L` Report Length
    - default value of 30 cases
 
 The case report (`caseReport`) returns a table containing the frequency of how many times each particular cell is in a category of size less than the
 Threshold. 
 
+
+<pre><code>
+
+> caseReport(myData, threshold = 30, print=5, ignore = KeepList)
+
+1007	  9
+1334	  8
+1456	  8
+209       5
+1341      4
+
+</code></pre>
 
 ### 2. Variable Report
 - Reports the lowest cell size for frequency tables
