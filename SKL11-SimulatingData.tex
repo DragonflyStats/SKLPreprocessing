@@ -1,0 +1,159 @@
+\documentclass[SKL-MASTER.tex]{subfiles}
+\begin{document}
+	\Large
+\section*{Creating sample data for introductory analysis}
+We can use scikit-learn to create toy data.
+\subsection*{Getting ready}
+\begin{itemize}
+\item Very similar to getting built-in datasets, fetching new datasets, and creating sample datasets,
+the functions that are used follow the naming convention \texttt{make\_$<$the data set$>$}. 
+\item Just to
+be clear, this data is purely artificial:
+\end{itemize}
+
+
+%===========================================================================================%
+%-- Chapter 1
+% 11
+\begin{framed}
+\begin{verbatim}
+>>> datasets.make_*?
+datasets.make_biclusters
+datasets.make_blobs
+
+datasets.make_checkerboard
+datasets.make_circles
+datasets.make_classification
+...
+\end{verbatim}
+\end{framed}
+%\noindent To save typing, import the datasets module as d , and numpy as np:
+\begin{framed}
+	\begin{verbatim}
+>>> import sklearn.datasets as d
+>>> import numpy as np
+\end{verbatim}
+\end{framed}
+\newpage
+%------------------------ %
+\subsection*{Implementation}
+%This section will walk you through the creation of several datasets; the following How
+%it works... section will confirm the purported characteristics of the datasets. In addition
+%to the sample datasets, these will be used throughout the book to create data with the
+%necessary characteristics for the algorithms on display.
+%
+%First, the stalwart—regression:
+%------------------------%
+\begin{framed}
+	\begin{verbatim}
+>>> reg_data = d.make_regression()
+\end{verbatim}
+\end{framed}
+%------------------------ %
+\begin{itemize}
+\item By default, this will generate a tuple with a 100 x 100 matrix : 100 samples by 100 features.
+\item By default, only 10 features are responsible for the target data generation. The
+second member of the tuple is the target variable.
+\item It is also possible to get more involved. For example, to generate a 1000 x 10 matrix with five
+features responsible for the target creation, an underlying bias factor of 1.0, and 2 targets,
+the following command will be run:
+\end{itemize}
+
+%------------------------%
+\begin{framed}
+	\begin{verbatim}
+>>> complex_reg_data =
+     d.make_regression(1000, 10, 5, 2, 1.0)
+>>>
+>>> complex_reg_data[0].shape
+(1000, 10)
+\end{verbatim}
+\end{framed}
+%------------------------ %
+\newpage
+\subsection*{Artificial Data sets for Classification}
+\begin{itemize}
+\item Classification datasets are also very simple to create. 
+\item It's simple to create a base classification
+set, but the basic case is rarely experienced in practice—most users don't convert, most
+transactions aren't fraudulent, and so on. \item Therefore, it's useful to explore classification on
+unbalanced datasets:
+\end{itemize}
+%------------------------%
+\begin{framed}
+\begin{verbatim}
+>>> classification_set = 
+   d.make_classification(weights=[0.1])
+>>>
+>>> np.bincount(classification_set[1])
+array([10, 90])
+\end{verbatim}
+\end{framed}
+%------------------------ %
+\newpage
+\section*{Clusters}
+%Clusters will also be covered. 
+\begin{itemize}
+\item There are actually several functions to create datasets that can
+be modeled by different cluster algorithms. \item For example, blobs are very easy to create and
+can be modeled by K-Means:
+\end{itemize}
+%------------------------%
+\begin{framed}
+	\begin{verbatim}
+>>> blobs = d.make_blobs()
+\end{verbatim}
+\end{framed}
+%------------------------ %
+%===========================================================================================%
+%Premodel Workflow
+%12
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\linewidth]{images/SKL11-data}
+\end{figure}
+\end{document}
+\newpage
+Let's walk you through how scikit-learn produces the regression dataset by taking a look at
+the source code (with some modifications for clarity). Any undefined variables are assumed
+to have the default value of \texttt{make\_regression}.
+It's actually surprisingly simple to follow.
+First, a random array is generated with the size specified when the function is called:
+\begin{framed}
+	\begin{verbatim}
+>>> X = np.random.randn(n_samples, n_features)
+\end{verbatim}
+\end{framed}
+Given the basic dataset, the target dataset is then generated:
+%------------------------%
+\begin{framed}
+	\begin{verbatim}
+>>> ground_truth = np.zeroes((np_samples, n_target))
+>>> ground_truth[:n_informative, :] 
+     = 100*np.random.rand(n_informative,
+         n_targets)
+\end{verbatim}
+\end{framed}
+%------------------------ %
+The dot product of X and \texttt{ground\_truth} are taken to get the final target values. Bias, if any,
+is added at this time:
+%------------------------%
+\begin{framed}
+\begin{verbatim}
+>>> y = np.dot(X, ground_truth) + bias
+\end{verbatim}
+\end{framed}
+%------------------------ %
+The dot product is simply a matrix multiplication. So, our final dataset
+will have \texttt{n\_samples}, which is the number of rows from the dataset,
+and \texttt{n\_target}, which is the number of target variables.
+Due to NumPy's broadcasting, bias can be a scalar value, and this value will be added to
+every sample.
+%===========================================================================================%
+%-- Chapter 1
+% % - 13
+Finally, it's a simple matter of adding any noise and shuffling the dataset. We now have a
+dataset perfect to test regression.
+
+
+\end{document}

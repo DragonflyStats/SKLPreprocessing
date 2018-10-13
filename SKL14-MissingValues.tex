@@ -1,0 +1,199 @@
+\documentclass[SKL-MASTER.tex]{subfiles}
+\begin{document}
+	\LARGE
+	%===========================================================================================%
+Premodel Workflow
+22
+\subsubsection{Imputing missing values through various strategies}
+Data imputation is critical in practice, and thankfully there are many ways to deal with it.
+In this recipe, we'll look at a few of the strategies. However, be aware that there might be
+other approaches that fit your situation better.
+This means scikit-learn comes with the ability to perform fairly common imputations; it will
+simply apply some transformations to the existing data and fill the NAs. However, if the dataset
+is missing data, and there's a known reason for this missing data—for example, response times
+for a server that times out after 100ms—it might be better to take a statistical approach through
+other packages such as the Bayesian treatment via PyMC, the Hazard Models via Lifelines, or
+something home-grown.
+\subsubsection{Getting ready}
+The first thing to do to learn how to input missing values is to create missing values. NumPy's
+masking will make this extremely simple:
+%------------------------%
+\begin{framed}
+\begin{verbatim}
+>>> from sklearn import datasets
+>>> import numpy as np
+>>> iris = datasets.load_iris()
+>>> iris_X = iris.data
+>>> masking_array = np.random.binomial(1, .25,iris_X.shape).astype(bool)
+>>> iris_X[masking_array] = np.nan
+\end{verbatim}
+\end{framed}
+%------------------------- %
+To unravel this a bit, in case NumPy isn't too familiar, it's possible to index arrays with other
+arrays in NumPy. So, to create the random missing data, a random Boolean array is created,
+which is of the same shape as the iris dataset. Then, it's possible to make an assignment
+via the masked array. It's important to note that because a random array is used, it is likely
+your \texttt{masking\_array} will be different from what's used here.
+To make sure this works, use the following command (since we're using a random mask,
+it might not match directly):
+%------------------------%
+\begin{framed}
+\begin{verbatim}
+>>> masking_array[:5]
+array([[False, False, False, False],
+[False, False, False, False],
+[False, False, False, False],
+[ True, False, False, False],
+[False, False, False, False]], dtype=bool)
+>>> iris_X [:5]
+array([[ 5.1, 3.5, 1.4, 0.2],
+[ 4.9, 3. , 1.4, 0.2],
+
+[ 4.7, 3.2, 1.3, 0.2],
+[ nan, 3.1, 1.5, 0.2],
+[ 5. , 3.6, 1.4, 0.2]])
+\end{verbatim}
+\end{framed}
+%------------------------- %
+%===========================================================================================%
+%-- Chapter 1
+%-- 23
+How to do it...
+A theme prevalent throughout this book (due to the theme throughout scikit-learn) is reusable
+classes that fit and transform datasets and that can subsequently be used to transform unseen
+datasets. This is illustrated as follows:
+%------------------------%
+\begin{framed}
+	\begin{verbatim}
+>>> from sklearn import preprocessing
+>>> impute = preprocessing.Imputer()
+>>> iris_X_prime = impute.fit_transform(iris_X)
+>>> iris_X_prime[:5]
+array([[ 5.1 , 3.5 , 1.4 , 0.2 ],
+[ 4.9 , 3. , 1.4 , 0.2 ],
+[ 4.7 , 3.2 , 1.3 , 0.2 ],
+[ 5.87923077, 3.1 , 1.5 , 0.2 ],
+[ 5. , 3.6 , 1.4 , 0.2 ]])
+\end{verbatim}
+\end{framed}
+%------------------------- %
+Notice the difference in the position [3, 0]:
+%------------------------%
+\begin{framed}
+	\begin{verbatim}
+>>> iris_X_prime[3, 0]
+5.87923077
+>>> iris_X[3, 0]
+nan
+\end{verbatim}
+\end{framed}
+%------------------------- %
+How it works...
+The imputation works by employing different strategies. The default is mean, but in total
+there are:
+\begin{enumerate}
+\item \texttt{mean} (default)
+\item \texttt{median}
+\item \texttt{most\_frequent} (the mode)
+\end{enumerate}
+
+scikit-learn will use the selected strategy to calculate the value for each non-missing value in
+the dataset. It will then simply fill the missing values.
+For example, to redo the iris example with the median strategy, simply reinitialize impute
+with the new strategy:
+
+%===========================================================================================%
+%-- Premodel Workflow
+%-- 24
+%------------------------%
+\begin{framed}
+\begin{verbatim}
+>>> impute = preprocessing.Imputer(strategy='median')
+>>> iris_X_prime = impute.fit_transform(iris_X)
+>>> iris_X_prime[:5]
+>>> impute = preprocessing.Imputer(strategy='median')
+>>> iris_X_prime = impute.fit_transform(iris_X)
+>>> iris_X_prime[:5]
+array([[ 5.1, 3.5, 1.4, 0.2],
+[ 4.9, 3. , 1.4, 0.2],
+[ 4.7, 3.2, 1.3, 0.2],
+[ 5.8, 3.1, 1.5, 0.2],
+[ 5. , 3.6, 1.4, 0.2]])
+\end{verbatim}
+\end{framed}
+%------------------------- %
+If the data is missing values, it might be inherently dirty in other places. For instance, in the
+example in the preceding How to do it... section, np.nan (the default missing value) was
+used as the missing value, but missing values can be represented in many ways. Consider
+a situation where missing values are -1. In addition to the strategy to compute the missing
+value, it's also possible to specify the missing value for the imputer. The default is Nan,
+which will handle np.nan values.
+To see an example of this, modify \texttt{iris\_X} to have -1 as the missing value. It sounds crazy,
+but since the iris dataset contains measurements that are always possible, many people
+will fill the missing values with -1 to signify they're not there:
+%------------------------%
+\begin{framed}
+\begin{verbatim}
+>>> iris_X[np.isnan(iris_X)] = -1
+>>> iris_X[:5]
+array([[ 5.1, 3.5, 1.4, 0.2],
+[ 4.9, 3. , 1.4, 0.2],
+[ 4.7, 3.2, 1.3, 0.2],
+[-1. , 3.1, 1.5, 0.2],
+[ 5. , 3.6, 1.4, 0.2]])
+\end{verbatim}
+\end{framed}
+%------------------------- %
+Filling these in is as simple as the following:
+%------------------------%
+\begin{framed}
+	\begin{verbatim}
+>>> impute = preprocessing.Imputer(missing_values=-1)
+>>> iris_X_prime = impute.fit_transform(iris_X)
+>>> iris_X_prime[:5]
+array([[ 5.1 , 3.5 , 1.4 , 0.2 ],
+[ 4.9 , 3. , 1.4 , 0.2 ],
+[ 4.7 , 3.2 , 1.3 , 0.2 ],
+[ 5.87923077, 3.1 , 1.5 , 0.2 ],
+[ 5. , 3.6 , 1.4 , 0.2 ]])
+\end{verbatim}
+\end{framed}
+%------------------------- %
+There's more...
+pandas also provides a functionality to fill missing data. It actually might be a bit more flexible,
+but it is less reusable:
+%------------------------%
+\begin{framed}
+\begin{verbatim}
+>>> import pandas as pd
+>>> iris_X[masking_array] = np.nan
+>>> iris_df = pd.DataFrame(iris_X, columns=iris.feature_names)
+>>> iris_df.fillna(iris_df.mean())['sepal length (cm)'].head(5)
+0 5.100000
+1 4.900000
+2 4.700000
+3 5.879231
+4 5.000000
+
+Name: sepal length (cm), dtype: float64
+\end{verbatim}
+\end{framed}
+%===========================================================================================%
+
+
+To mention its flexibility, fillna can be passed any sort of statistic, that is, the strategy is
+more arbitrarily defined:
+%------------------------%
+\begin{framed}
+	\begin{verbatim}
+>>> iris_df.fillna(iris_df.max())['sepal length (cm)'].head(5)
+0 5.1
+1 4.9
+2 4.7
+3 7.9
+4 5.0
+Name: sepal length (cm), dtype: float64
+\end{verbatim}
+\end{framed}
+%------------------------- %
+\end{document}
