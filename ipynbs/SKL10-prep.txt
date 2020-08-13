@@ -1,0 +1,30 @@
+%Premodel Workflow
+%8
+\subsection{Introduction}
+This chapter discusses setting data, preparing data, and premodel dimensionality reduction.
+These are not the attractive parts of machine learning (ML), but they often turn out to be
+what determines if a model will work or not.
+
+There are three main parts to the chapter. 
+
+Firstly, we'll create fake data; this might seem
+trivial, but creating fake data and fitting models to fake data is an important step in model
+testing. It's more useful in situations where we implement an algorithm from scratch, but I'll
+cover it here for completeness, and in the event you don't have data of your own, you can just
+create it. 
+
+Secondly, we'll look at broadly handling data transformations as a preprocessing
+step, which includes data imputation, categorical variable encoding, and so on. 
+
+Thirdly,
+we'll look at situations where we have a large number of features relative to the number of
+observations we have.
+%=================================================%
+This chapter, especially the first half, will set the stage for the later chapters. In order to use
+scikit-learn, data is required. The first two sections will discuss acquiring the data; the rest of
+the first half will discuss preparing this data for use.
+
+This book is written using scikit-learn 0.15, NumPy 1.9, and pandas 0.13.
+There are other packages used as well, so it's advisable that you refer to
+the installation instructions included in this book.
+%=================================================%
